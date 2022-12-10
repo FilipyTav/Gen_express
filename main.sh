@@ -34,8 +34,10 @@ array_contains () {
 set_app () {
     # Options for the build and watch scripts in package.json
     declare -A build_options
-    build_options["ts"]="tsc -p ."
-    build_options["sass"]="node-sass --include-path sass ./src/styles/styles.css ./dist/styles/styles.$STYLESHEETS"
+    build_options["ts"]="\"tsc -p .\""
+    build_options["sass"]="\"node-sass --include-path sass ./src/styles/styles.css ./dist/styles/styles.$STYLESHEETS\""
+    build_options["ts-sass"]="\"${build_options[ts]} && ${build_options[sass]}\""
+    build_options["default"]="\"\""
 
     local watch_all="nodemon -e $STYLESHEETS,$SCRIPT"
 
@@ -44,18 +46,36 @@ set_app () {
         watch_all="nodemon -e $STYLESHEETS,$SCRIPT -x 'npm run build'"
     fi
 
+    cp "$base_dir/files/package.json" "$target_dir"
+
+    sed -i "s/<----PLACEHOLDER WATCH---->/\"$watch_all\"/g" "$target_dir/package.json"
+
     # Adds tsconfig if ts is chosen
     [[ $SCRIPT == "ts" ]] && cp "$base_dir/files/tsconfig.json" "$target_dir"
 
+    # It's ugly, but i cannot think of a better method
+    if [[ ($STYLESHEETS == "sass" || $STYLESHEETS == "scss") && $SCRIPT == "ts" ]]; then
+        sed -i "s/<----PLACEHOLDER BUILD---->/${build_options[ts-sass]}/g" "$target_dir/package.json"
+    elif [[ $STYLESHEETS == "sass" || $STYLESHEETS == "scss" ]]; then
+        sed -i "s/<----PLACEHOLDER BUILD---->/${build_options[sass]}/g" "$target_dir/package.json"
+    elif [[ $SCRIPT == "ts" ]]; then
+        sed -i "s/<----PLACEHOLDER BUILD---->/${build_options[ts]}/g" "$target_dir/package.json"
+    else
+        sed -i "s/<----PLACEHOLDER BUILD---->/${build_options[default]}/g" "$target_dir/package.json"
+    fi
+
     # TODO: install packages necessary
     if [[ $STYLESHEETS == "sass" || $STYLESHEETS == "scss" ]]; then
+        # sed -i "s/<----PLACEHOLDER BUILD---->/${build_options[sass]}/g" "$target_dir/package.json"
+        # npm i node-sass -D
         echo
     fi
 
     if [[ $SCRIPT == "ts" ]]; then
         echo
     fi
-
+    
+    # npm i nodemon -D
 }
 
 
