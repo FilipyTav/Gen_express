@@ -1,13 +1,13 @@
 {
-    "name": "mini_msg_board",
+    "name": "<----PLACEHOLDER NAME---->",
     "version": "1.0.0",
     "description": "",
-    "main": "index.js",
+    "main": "index.<----PLACEHOLDER SCRIPT---->",
     "scripts": {
-        "start": "node dist/app.js",
-        "dev": "nodemon src/app.ts",
-        "build": <----PLACEHOLDER BUILD---->,
-        "watch-all": <----PLACEHOLDER WATCH---->
+        "start": "node dist/app.<----PLACEHOLDER SCRIPT---->",
+        "dev": "nodemon src/app.<----PLACEHOLDER SCRIPT---->",
+        "build": "<----PLACEHOLDER BUILD---->",
+        "watch-all": "<----PLACEHOLDER WATCH---->"
     },
     "keywords": [],
     "author": "",
