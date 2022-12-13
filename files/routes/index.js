@@ -3,7 +3,10 @@ import express from "express";
 const router = express.Router();
 
 router.get("/", (req, res, next) => {
-    res.render("template", { arguments });
+    // To render a template, use:
+    // res.render("template", { arguments });
+
+    res.send("Main page")
 });
 
 export default router;

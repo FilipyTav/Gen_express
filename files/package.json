@@ -3,8 +3,9 @@
     "version": "1.0.0",
     "description": "",
     "main": "index.<----PLACEHOLDER SCRIPT---->",
+    "type": "module",
     "scripts": {
-        "start": "node dist/app.<----PLACEHOLDER SCRIPT---->",
+        "start": "node dist/app.js",
         "dev": "nodemon src/app.<----PLACEHOLDER SCRIPT---->",
         "build": "<----PLACEHOLDER BUILD---->",
         "watch-all": "<----PLACEHOLDER WATCH---->"

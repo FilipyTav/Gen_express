@@ -1,10 +1,15 @@
 import express from "express";
 
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 
-import index_router from "./routes/index";
+import index_router from "./routes/index.js";
 
 const app = express();
+
+// This is just so i can use __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Allows access to form content
 app.use(
