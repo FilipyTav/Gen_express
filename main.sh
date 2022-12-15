@@ -125,12 +125,11 @@ set_app () {
 
     declare -A build_options
     
-    # todo: not working  <13-12-22, yourname> #
-    build_options["ts"]="$compile_ts \&\& rsync -av --progress src\/styles\/ dist\/styles\/"
+    build_options["ts"]="$compile_ts \&\& rsync -av src\/ dist\/ --exclude \/app.ts --exclude \/routes\/"
     # Compiles sass and copies other files in src folder, only if they were modified
-    build_options["sass"]="rsync -av --progress src\/ dist\/ --exclude \/styles\/ \&\& $compile_sass"
+    build_options["sass"]="rsync -av src\/ dist\/ --exclude \/styles\/ \&\& $compile_sass"
     build_options["ts-sass"]="$compile_ts \&\& $compile_sass"
-    build_options["default"]="rsync -av --progress src\/ dist\/"
+    build_options["default"]="rsync -av src\/ dist\/"
 
     local watch_all="nodemon -e $STYLESHEETS,$SCRIPT -x 'npm run build'"
 
@@ -164,6 +163,10 @@ set_app () {
         echo "Installing ts dependencies..."
         echo ""
         npm i typescript ts-node @types/node @types/express -D
+        
+        # Removes the type: module from package.json,
+        # since it is not necessary when using ts
+        sed -i '/"type": "module"/d' "$target_dir/package.json"
     fi
 
     sed -i "s/<----PLACEHOLDER SCRIPT---->/$SCRIPT/g" "$target_dir/package.json"
@@ -175,7 +178,6 @@ set_app () {
     elif [[ $STYLESHEETS == "sass" || $STYLESHEETS == "scss" ]]; then
         sed -i "s/<----PLACEHOLDER BUILD---->/${build_options[sass]}/g" "$target_dir/package.json"
     elif [[ $SCRIPT == "ts" ]]; then
-        echo only ts
         sed -i "s/<----PLACEHOLDER BUILD---->/${build_options[ts]}/g" "$target_dir/package.json"
     else
         sed -i "s/<----PLACEHOLDER BUILD---->/${build_options[default]}/g" "$target_dir/package.json"
