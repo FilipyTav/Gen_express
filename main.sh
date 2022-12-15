@@ -12,10 +12,11 @@ example() {
 help() {
     usage
     echo -e "OPTION:"
-    echo -e "  -css=, --stylesheet=   [css, sass, scss]"
-    echo -e "  -scr=, --script=   [js, ts]"
-    echo -e "  -n=, --name=   Name of the project. Default is $REPO_NAME"
-    echo -e "  -h,  --help    Prints this help\n"
+    echo -e "  -css=, --stylesheet=   [css, sass, scss]. Default is $STYLESHEETS"
+    echo -e "  -scr=, --script=       [js, ts]. Default is $SCRIPT"
+    echo -e "  -n=, --name=           Name of the project. Default is $REPO_NAME"
+    echo -e "  -v=, --view=           [pug, ejs, hbs]. Default is $VIEW_ENGINE"
+    echo -e "  -h,  --help            Prints this help\n"
     example
 }
 
@@ -35,6 +36,7 @@ rename_extensions() {
 SCRIPT="js"
 STYLESHEETS="css"
 REPO_NAME="node_express"
+VIEW_ENGINE="pug"
 
 for i in "$@"; do
     case $i in
@@ -61,6 +63,16 @@ for i in "$@"; do
         value="${i#*=}"
 
         REPO_NAME="$value"
+        shift ;;
+        
+    --view=* | -v=*)
+        value="${i#*=}"
+        
+        possibilities=("pug" "ejs" "hbs")
+
+        ! [[ ${possibilities[*]} =~ ${value} ]] && break
+
+        VIEW_ENGINE="$value"
         shift ;;
 
     --help | -h )
@@ -154,8 +166,6 @@ set_app () {
         npm i typescript ts-node @types/node @types/express -D
     fi
 
-    cd "../"
-
     sed -i "s/<----PLACEHOLDER SCRIPT---->/$SCRIPT/g" "$target_dir/package.json"
     sed -i "s/<----PLACEHOLDER NAME---->/$REPO_NAME/g" "$target_dir/package.json"
 
@@ -171,6 +181,27 @@ set_app () {
         sed -i "s/<----PLACEHOLDER BUILD---->/${build_options[default]}/g" "$target_dir/package.json"
     fi
 
+    # Todo: looks bad
+    case "$VIEW_ENGINE" in
+        pug ) 
+            npm i pug
+            cp "$base_dir/files/views/"*.pug "$target_dir/src/mvc/views"
+        ;;
+        ejs ) 
+            npm i ejs
+            cp "$base_dir/files/views/"*.ejs "$target_dir/src/mvc/views"
+        ;;
+        hbs ) 
+            npm i hbs
+            cp "$base_dir/files/views/"*.hbs "$target_dir/src/mvc/views"
+        ;;
+        *) echo default
+        ;;
+    esac
+    
+    sed -i "s/<----VIEW ENGINE PLACEHOLDER---->/$VIEW_ENGINE/g" "$target_dir/src/app.$SCRIPT"
+    
+    cd "../"
 }
 
 set_src () {
