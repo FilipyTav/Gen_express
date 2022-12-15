@@ -20,6 +20,18 @@ help() {
     example
 }
 
+instructions() {
+    echo ""
+    echo "-----     To see the initial setup, run     -----"
+    echo ""
+    echo "-----     cd ${REPO_NAME}     -----"
+    echo ""
+    echo "-----     npm run build     -----"
+    echo ""
+    echo "-----     npm start     -----"
+    echo ""
+}
+
 # Usage: rename_extensions current_extension desired_extension
 rename_extensions() {
     # Dunno how to make this work
@@ -64,10 +76,10 @@ for i in "$@"; do
 
         REPO_NAME="$value"
         shift ;;
-        
+
     --view=* | -v=*)
         value="${i#*=}"
-        
+
         possibilities=("pug" "ejs" "hbs")
 
         ! [[ ${possibilities[*]} =~ ${value} ]] && break
@@ -124,11 +136,11 @@ set_app () {
     local compile_ts="tsc -p ."
 
     declare -A build_options
-    
+
     build_options["ts"]="$compile_ts \&\& rsync -av src\/ dist\/ --exclude \/app.ts --exclude \/routes\/"
     # Compiles sass and copies other files in src folder, only if they were modified
     build_options["sass"]="rsync -av src\/ dist\/ --exclude \/styles\/ \&\& $compile_sass"
-    build_options["ts-sass"]="$compile_ts \&\& $compile_sass"
+    build_options["ts-sass"]="$compile_ts \&\& $compile_sass \&\& rsync -av src\/mvc\/ dist\/mvc\/"
     build_options["default"]="rsync -av src\/ dist\/"
 
     local watch_all="nodemon -e $STYLESHEETS,$SCRIPT -x 'npm run build'"
@@ -163,7 +175,7 @@ set_app () {
         echo "Installing ts dependencies..."
         echo ""
         npm i typescript ts-node @types/node @types/express -D
-        
+
         # Removes the type: module from package.json,
         # since it is not necessary when using ts
         sed -i '/"type": "module"/d' "$target_dir/package.json"
@@ -188,21 +200,21 @@ set_app () {
         pug ) 
             npm i pug
             cp "$base_dir/files/views/"*.pug "$target_dir/src/mvc/views"
-        ;;
+            ;;
         ejs ) 
             npm i ejs
             cp "$base_dir/files/views/"*.ejs "$target_dir/src/mvc/views"
-        ;;
+            ;;
         hbs ) 
             npm i hbs
             cp "$base_dir/files/views/"*.hbs "$target_dir/src/mvc/views"
-        ;;
+            ;;
         *) echo default
-        ;;
+            ;;
     esac
-    
+
     sed -i "s/<----VIEW ENGINE PLACEHOLDER---->/$VIEW_ENGINE/g" "$target_dir/src/app.$SCRIPT"
-    
+
     cd "../"
 }
 
@@ -226,12 +238,4 @@ set_src
 
 set_app
 
-echo ""
-echo "-----     To see the initial setup, run     -----"
-echo ""
-echo "-----     cd ${REPO_NAME}     -----"
-echo ""
-echo "-----     npm run build     -----"
-echo ""
-echo "-----     npm start     -----"
-echo ""
+instructions
