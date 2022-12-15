@@ -41,6 +41,12 @@ rename_extensions() {
     find "$target_dir/src" -iname "*.$1" -exec rename "s/\.$1$/\.$2/i" {} \;
 }
 
+# Usage: correct_usage selected options
+correct_usage() {
+    echo "$1 not supported, the available options are: $2."
+    exit 0
+}
+
 
 # compiled=("sass" "scss" "ts")
 # readonly compiled
@@ -57,7 +63,8 @@ for i in "$@"; do
         value="${i#*=}"
         possibilities=("css" "sass" "scss")
 
-        ! [[ ${possibilities[*]} =~ ${value} ]] && break
+        # If value not in possibilities
+        ! [[ ${possibilities[*]} =~ ${value} ]] && correct_usage "$value" "${possibilities[*]}"
 
         STYLESHEETS="$value"
         shift ;;
@@ -66,7 +73,7 @@ for i in "$@"; do
         value="${i#*=}"
         possibilities=("js" "ts")
 
-        ! [[ ${possibilities[*]} =~ ${value} ]] && break
+        ! [[ ${possibilities[*]} =~ ${value} ]] && correct_usage "$value" "${possibilities[*]}"
 
         SCRIPT="$value"
         shift ;;
@@ -82,7 +89,7 @@ for i in "$@"; do
 
         possibilities=("pug" "ejs" "hbs")
 
-        ! [[ ${possibilities[*]} =~ ${value} ]] && break
+        ! [[ ${possibilities[*]} =~ ${value} ]] && correct_usage "$value" "${possibilities[*]}"
 
         VIEW_ENGINE="$value"
         shift ;;
